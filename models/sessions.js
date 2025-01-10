@@ -24,6 +24,29 @@ module.exports = (sequelize, DataTypes) => {
         }
       });
     }
+
+    static async updateSession(sessionId, sessions) {
+      try {
+          // Update the session where the id matches sessionId
+          const [updated] = await this.update(sessions, {
+              where: {
+                  id: sessionId
+              }
+          });
+  
+          if (updated) {
+              console.log('Session updated successfully');
+              return { success: true, message: 'Session updated successfully' };
+          } else {
+              console.error('Session not found');
+              return { success: false, message: 'Session not found' };
+          }
+      } catch (error) {
+          console.error('Error updating session:', error);
+          return { success: false, message: 'Error updating session' };
+      }
+  }
+  
     
   }
   Sessions.init({

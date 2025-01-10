@@ -10,26 +10,8 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="p-6 rounded-lg shadow-md w-full">
-        <form action="/adminPage" method="post" class="bg-white p-6 rounded-lg" onsubmit="return validateSport()">
-            <div class="flex flex-col items-center">
-                <input 
-                    type="text" 
-                    id="sport" 
-                    name="sport" 
-                    placeholder="Enter a sport" 
-                    required
-                    class="w-full sm:w-96 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                
-                <button 
-                    type="submit"
-                    class="mt-4 w-full sm:w-96 bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
-                    Add
-                </button>
-            </div>
-        </form>
-        
         <div class="mt-4 bg-white p-6 rounded-lg shadow-md w-full">
-            <h2 class="text-lg font-bold mb-4">Added Sports:</h2>
+            <h2 class="text-lg font-bold mb-4">Avaliable Sports:</h2>
             <ul class="sports-list grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 <% sports.forEach(sport => { %>
                     <li class="bg-gray-100 p-4 rounded-lg shadow-md flex flex-col items-center" data-sport="<%= sport %>">
