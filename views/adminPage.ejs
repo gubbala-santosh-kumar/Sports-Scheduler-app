@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .sports-list {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr); /* Default to 1 column for mobile */
+            gap: 1rem; /* Space between items */
+        }
+
+        .sports-list li {
+            background-color: #f9f9f9; /* Optional styling for list items */
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }   
+
+        /* For tablets (medium screens) */
+        @media (min-width: 640px) {
+            .sports-list {
+                grid-template-columns: repeat(3, 1fr); /* 3 columns for tablets */
+            }
+        }
+
+        /* For laptops and larger screens */
+        @media (min-width: 1024px) {
+            .sports-list {
+                grid-template-columns: repeat(4, 1fr); /* 4 columns for laptops */
+            }
+        }
+    </style>
+    <script>
+        // Function to validate sport name uniqueness
+        function validateSport() {
+            const sportInput = document.getElementById('sport').value.trim().toLowerCase();
+            const sportsList = Array.from(document.querySelectorAll('.sports-list li h1')).map(h1 => h1.textContent.toLowerCase());
+
+            if (sportsList.includes(sportInput)) {
+                alert('Sport already exists.');
+                return false; // Prevent form submission
+            }
+            return true; // Allow form submission
+        }
+
+        async function deleteSport(sportName) {
+            try {
+                // Send DELETE request to the server
+                const response = await fetch(`/adminPage/${sportName}`, { method: 'DELETE' });
+                const sports = await response.json();
+
+                // Find and remove the corresponding list item from the DOM
+                const sportItem = document.querySelector(`li[data-sport="${sportName}"]`);
+                if (sportItem) {
+                    sportItem.remove(); // Remove the item from the list
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function openSessionForm(){
+            document.getElementById("sessionFormContainer").style.display = "block";
+        }
+
+async function submitSessionForm(event) {
+    event.preventDefault();  // Prevent the form from submitting the traditional way
+
+    // Get the form element
+    const form = document.getElementById('sessionForm');
+    
+    // Create a FormData object to gather the form input values
+    const formData = new FormData(form);
+
+    // Convert FormData to a plain object
+    const formObject = {};
+    formData.forEach((value, key) => {
+        formObject[key] = value;
+    });
+
+    // Log the form values to the console
+    console.log(formObject);
+
+    // Send form data to the backend using fetch
+    try {
+        const response = await fetch('/create-session', {
+            method: 'POST', // HTTP method
+            headers: {
+                'Content-Type': 'application/json' // Specify the type of data we're sending
+            },
+            body: JSON.stringify(formObject) // Send the form data as a JSON string
+        });
+
+        // Handle the response from the server
+        const result = await response.json();
+        console.log('Server Response:', result);
+
+        // You can handle the response here (e.g., show a success message)
+        if (response.ok) {
+            alert('Session created successfully!');
+            window.location.reload();
+        } else {
+            alert('Error creating session!');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('There was an error while creating the session.');
+    }
+}
+
+function deleteSession(sessionId) {
+    if (confirm("Are you sure you want to delete this session?")) {
+        fetch(`/delete-session/${sessionId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Session deleted successfully.");
+                // Optionally reload the page or remove the session from the DOM
+                location.reload();
+            } else {
+                alert("Failed to delete the session.");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("An error occurred while deleting the session.");
+        });
+    }
+}
+
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="p-6 rounded-lg shadow-md w-full">
+        <form action="/adminPage" method="post" class="bg-white p-6 rounded-lg" onsubmit="return validateSport()">
+            <div class="flex flex-col items-center">
+                <input 
+                    type="text" 
+                    id="sport" 
+                    name="sport" 
+                    placeholder="Enter a sport" 
+                    required
+                    class="w-full sm:w-96 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                
+                <button 
+                    type="submit"
+                    class="mt-4 w-full sm:w-96 bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    Add
+                </button>
+            </div>
+        </form>
+        
+        <div class="mt-4 bg-white p-6 rounded-lg shadow-md w-full">
+            <h2 class="text-lg font-bold mb-4">Added Sports:</h2>
+            <ul class="sports-list grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <% sports.forEach(sport => { %>
+                    <li class="bg-gray-100 p-4 rounded-lg shadow-md flex flex-col items-center" data-sport="<%= sport %>">
+                        <h1 class="text-xl font-semibold mb-2"><%= sport %></h1>
+                        <button onclick="deleteSport('<%= sport %>')" 
+                            class="mt-auto w-full bg-red-500 text-white p-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                            Delete
+                        </button><br>
+                        <button type="submit" onclick="openSessionForm()"
+                            class="mt-auto w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                            Create Session
+                        </button>
+                    </li>
+                <% }) %>
+            </ul>
+        </div>
+
+        <div id="sessionFormContainer" class="bg-white h-screen flex justify-center items-center my-5 py-15 px-10 rounded-md shadow-lg hidden">
+            <br>
+            <div class="flex justify-center items-center p-5 rounded-lg shadow-lg w-full max-w-lg bg-gray-100">
+                <form action="/create-session" method="post" id="sessionForm" onsubmit="submitSessionForm(event)">
+                    <h2 class="text-lg font-bold mb-6 text-center text-gray-800">Create Session</h2>
+                    
+                    <div class="mb-5">
+                        <label for="sport" class="block text-sm font-medium text-gray-700">Select Sport</label>
+                        <select id="sport" name="sport" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                            <% sports.forEach(sport => { %>
+                                <option value="<%= sport %>"><%= sport %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+        
+                    <div class="flex justify-between items-center">
+                        <!-- Team A Section -->
+                        <div class="mb-5 w-full">
+                            <label for="teamA" class="block text-sm font-medium text-gray-700">Team A</label>
+                            <input type="text" id="teamA" name="teamA" placeholder="Enter team lead name" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                            
+                            <label for="teamASize" class="block text-sm font-medium text-gray-700 mt-2">Team A Size</label>
+                            <input type="number" id="teamASize" name="teamASize" placeholder="Enter team size" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        </div>
+                        
+                        <!-- Team B Section -->
+                        <div class="mb-5 w-full">
+                            <label for="teamB" class="block text-sm font-medium text-gray-700">Team B</label>
+                            <input type="text" id="teamB" name="teamB" placeholder="Enter team lead name" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                            
+                            <label for="teamBSize" class="block text-sm font-medium text-gray-700 mt-2">Team B Size</label>
+                            <input type="number" id="teamBSize" name="teamBSize" placeholder="Enter team size" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-5">
+                        <label for="actualSize" class="block text-sm font-medium text-gray-700">Actual size of a Team</label>
+                        <input type="number" id="actualSize" name="actualSize" placeholder="Enter atual size for a team" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    </div>
+        
+                    <div class="mb-5">
+                        <label for="place" class="block text-sm font-medium text-gray-700">Place</label>
+                        <input type="text" id="place" name="place" placeholder="Enter Place" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    </div>
+        
+                    <div class="mb-5">
+                        <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+                        <input type="date" id="date" name="date" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    </div>
+        
+                    <div class="mb-5">
+                        <label for="time" class="block text-sm font-medium text-gray-700">Time</label>
+                        <input type="time" id="time" name="time" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    </div>
+        
+                    <center>
+                        <button type="submit" class="mt-4 w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                            Create Session
+                        </button>
+                    </center>
+        
+                </form>
+            </div>
+        </div>
+
+        <div class="session-details px-6 py-4">
+            <h2 class="text-2xl font-semibold mb-6">Session Details</h2>
+            
+            <!-- Container for responsive grid layout -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-100">
+                <% sessions.forEach(session => { %>
+                    <div class="session-card bg-gray-100 p-6 rounded-lg shadow-lg">
+                        <center><p class="text-lg"><strong class="font-semibold"><%= session.sport %></strong></p></center>
+                        <!-- <p class="text-lg"><strong class="font-semibold hidden">ID:</strong> <%= session.id %></p> -->
+                        <p class="text-lg"><strong class="font-semibold">Team A:</strong> <%= session.teamA %></p>
+                        <p class="text-lg"><strong class="font-semibold">Team B:</strong> <%= session.teamB %></p>
+                        <p class="text-lg"><strong class="font-semibold">Team A Size:</strong> <%= session.teamAsize %></p>
+                        <p class="text-lg"><strong class="font-semibold">Team B Size:</strong> <%= session.teamBsize %></p>
+                        <p class="text-lg"><strong class="font-semibold">Actual Team Size:</strong> <%= session.actualTeamSize %></p>
+                        <p class="text-lg"><strong class="font-semibold">Place:</strong> <%= session.place %></p>
+                        <p class="text-lg"><strong class="font-semibold">Date:</strong> <%= session.date.toLocaleDateString() %></p>
+                        <p class="text-lg"><strong class="font-semibold">Time:</strong> <%= session.time %></p>
+                        
+                        <div class="mt-4 flex gap-5 justify-between">
+                            <button type="submit" onclick="deleteSession(<%= session.id %>)" class="bg-red-500 text-white py-2 px-6 w-full rounded-lg">Delete</button>
+                            <button type="submit" onclick="updateSession(<%= session.id %>)" class="bg-blue-500 text-white py-2 px-6 w-full rounded-lg">Edit</button>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+
+        </div>
+             
+    </div>
+</body>
+</html>
