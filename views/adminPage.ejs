@@ -68,75 +68,74 @@
             document.getElementById("sessionFormContainer").style.display = "block";
         }
 
-async function submitSessionForm(event) {
-    event.preventDefault();  // Prevent the form from submitting the traditional way
+        async function submitSessionForm(event) {
+            event.preventDefault();  // Prevent the form from submitting the traditional way
 
-    // Get the form element
-    const form = document.getElementById('sessionForm');
-    
-    // Create a FormData object to gather the form input values
-    const formData = new FormData(form);
+            // Get the form element
+            const form = document.getElementById('sessionForm');
+            
+            // Create a FormData object to gather the form input values
+            const formData = new FormData(form);
 
-    // Convert FormData to a plain object
-    const formObject = {};
-    formData.forEach((value, key) => {
-        formObject[key] = value;
-    });
+            // Convert FormData to a plain object
+            const formObject = {};
+            formData.forEach((value, key) => {
+                formObject[key] = value;
+            });
 
-    // Log the form values to the console
-    console.log(formObject);
+            // Log the form values to the console
+            console.log(formObject);
 
-    // Send form data to the backend using fetch
-    try {
-        const response = await fetch('/create-session', {
-            method: 'POST', // HTTP method
-            headers: {
-                'Content-Type': 'application/json' // Specify the type of data we're sending
-            },
-            body: JSON.stringify(formObject) // Send the form data as a JSON string
-        });
+            // Send form data to the backend using fetch
+            try {
+                const response = await fetch('/create-session', {
+                    method: 'POST', // HTTP method
+                    headers: {
+                        'Content-Type': 'application/json' // Specify the type of data we're sending
+                    },
+                    body: JSON.stringify(formObject) // Send the form data as a JSON string
+                });
 
-        // Handle the response from the server
-        const result = await response.json();
-        console.log('Server Response:', result);
+                // Handle the response from the server
+                const result = await response.json();
+                console.log('Server Response:', result);
 
-        // You can handle the response here (e.g., show a success message)
-        if (response.ok) {
-            alert('Session created successfully!');
-            window.location.reload();
-        } else {
-            alert('Error creating session!');
+                // You can handle the response here (e.g., show a success message)
+                if (response.ok) {
+                    alert('Session created successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Error creating session!');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('There was an error while creating the session.');
+            }
         }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('There was an error while creating the session.');
-    }
-}
 
-function deleteSession(sessionId) {
-    if (confirm("Are you sure you want to delete this session?")) {
-        fetch(`/delete-session/${sessionId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
+        function deleteSession(sessionId) {
+            if (confirm("Are you sure you want to delete this session?")) {
+                fetch(`/delete-session/${sessionId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Session deleted successfully.");
+                        // Optionally reload the page or remove the session from the DOM
+                        location.reload();
+                    } else {
+                        alert("Failed to delete the session.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("An error occurred while deleting the session.");
+                });
             }
-        })
-        .then(response => {
-            if (response.ok) {
-                alert("Session deleted successfully.");
-                // Optionally reload the page or remove the session from the DOM
-                location.reload();
-            } else {
-                alert("Failed to delete the session.");
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("An error occurred while deleting the session.");
-        });
-    }
-}
-
+        }
     </script>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -199,6 +198,7 @@ function deleteSession(sessionId) {
                             <label for="teamA" class="block text-sm font-medium text-gray-700">Team A</label>
                             <input type="text" id="teamA" name="teamA" placeholder="Enter team lead name" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
                             
+
                             <label for="teamASize" class="block text-sm font-medium text-gray-700 mt-2">Team A Size</label>
                             <input type="number" id="teamASize" name="teamASize" placeholder="Enter team size" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
                         </div>
@@ -208,69 +208,84 @@ function deleteSession(sessionId) {
                             <label for="teamB" class="block text-sm font-medium text-gray-700">Team B</label>
                             <input type="text" id="teamB" name="teamB" placeholder="Enter team lead name" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
                             
+
                             <label for="teamBSize" class="block text-sm font-medium text-gray-700 mt-2">Team B Size</label>
                             <input type="number" id="teamBSize" name="teamBSize" placeholder="Enter team size" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
                         </div>
                     </div>
-                    
+
                     <div class="mb-5">
-                        <label for="actualSize" class="block text-sm font-medium text-gray-700">Actual size of a Team</label>
-                        <input type="number" id="actualSize" name="actualSize" placeholder="Enter atual size for a team" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        <label for="actualSize" class="block text-sm font-medium text-gray-700 mt-2">Team B Size</label>
+                        <input type="number" id="actualSize" name="actualSize" placeholder="Enter actual size of a team" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
                     </div>
-        
+
                     <div class="mb-5">
                         <label for="place" class="block text-sm font-medium text-gray-700">Place</label>
-                        <input type="text" id="place" name="place" placeholder="Enter Place" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        <input type="text" id="place" name="place" placeholder="Enter session place" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
                     </div>
-        
-                    <div class="mb-5">
-                        <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
-                        <input type="date" id="date" name="date" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    
+                    <div class="flex justify-between items-center">
+                        <div class="mb-5 w-full">
+                            <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+                            <input type="date" id="date" name="date" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        </div>
+
+                        <div class="mb-5 w-full">
+                            <label for="time" class="block text-sm font-medium text-gray-700">Time</label>
+                            <input type="time" id="time" name="time" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        </div>
                     </div>
-        
-                    <div class="mb-5">
-                        <label for="time" class="block text-sm font-medium text-gray-700">Time</label>
-                        <input type="time" id="time" name="time" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
-                    </div>
-        
-                    <center>
-                        <button type="submit" class="mt-4 w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
-                            Create Session
-                        </button>
-                    </center>
-        
+                    
+                    <button 
+                        type="submit"
+                        class="mt-4 w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                        Create Session
+                    </button>
                 </form>
             </div>
         </div>
 
-        <div class="session-details px-6 py-4">
-            <h2 class="text-2xl font-semibold mb-6">Session Details</h2>
+        <h2 class="text-2xl font-semibold text-center mb-6 text-gray-800">Sessions Available</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full px-4">
+    <% sessions.forEach(session => { %>
+        <div class="session-card bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition duration-300 ease-in-out">
+            <div class="text-center mb-4">
+                <p class="text-xl font-semibold text-gray-700"><%= session.sport %></p>
+            </div>
             
-            <!-- Container for responsive grid layout -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-100">
-                <% sessions.forEach(session => { %>
-                    <div class="session-card bg-gray-100 p-6 rounded-lg shadow-lg">
-                        <center><p class="text-lg"><strong class="font-semibold"><%= session.sport %></strong></p></center>
-                        <!-- <p class="text-lg"><strong class="font-semibold hidden">ID:</strong> <%= session.id %></p> -->
-                        <p class="text-lg"><strong class="font-semibold">Team A:</strong> <%= session.teamA %></p>
-                        <p class="text-lg"><strong class="font-semibold">Team B:</strong> <%= session.teamB %></p>
-                        <p class="text-lg"><strong class="font-semibold">Team A Size:</strong> <%= session.teamAsize %></p>
-                        <p class="text-lg"><strong class="font-semibold">Team B Size:</strong> <%= session.teamBsize %></p>
-                        <p class="text-lg"><strong class="font-semibold">Actual Team Size:</strong> <%= session.actualTeamSize %></p>
-                        <p class="text-lg"><strong class="font-semibold">Place:</strong> <%= session.place %></p>
-                        <p class="text-lg"><strong class="font-semibold">Date:</strong> <%= session.date.toLocaleDateString() %></p>
-                        <p class="text-lg"><strong class="font-semibold">Time:</strong> <%= session.time %></p>
-                        
-                        <div class="mt-4 flex gap-5 justify-between">
-                            <button type="submit" onclick="deleteSession(<%= session.id %>)" class="bg-red-500 text-white py-2 px-6 w-full rounded-lg">Delete</button>
-                            <button type="submit" onclick="updateSession(<%= session.id %>)" class="bg-blue-500 text-white py-2 px-6 w-full rounded-lg">Edit</button>
-                        </div>
-                    </div>
-                <% }); %>
+            <div class="space-y-3">
+                <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Team A:</strong> <%= session.teamA %></p>
+                <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Team B:</strong> <%= session.teamB %></p>
+                <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Team A Size:</strong> <%= session.teamAsize %></p>
+                <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Team B Size:</strong> <%= session.teamBsize %></p>
+                <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Actual Team Size:</strong> <%= session.actualTeamSize %></p>
+                <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Place:</strong> <%= session.place %></p>
+                <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Date:</strong> <%= session.date.toLocaleDateString() %></p>
+                <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Time:</strong> <%= session.time %></p><br>
+                <center>
+                    <strong class="font-semibold text-indigo-600">
+                        <%= 
+                        (parseInt(session.actualTeamSize)+parseInt(session.actualTeamSize) - (parseInt(session.teamBsize) + parseInt(session.teamAsize) ) ) === 0
+                        ? "No slots are Avaliable..."
+                        : `Avaliable slots are ${(parseInt(session.actualTeamSize)+parseInt(session.actualTeamSize) - (parseInt(session.teamBsize) + parseInt(session.teamAsize) ) )} `
+                        %>
+                    </strong>
+                </center>
+                
             </div>
 
+            <div class="mt-6 flex gap-4 justify-between">
+                <button type="button" onclick="deleteSession(<%= session.id %>)" class="bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded-lg w-1/2 transition duration-200 ease-in-out transform hover:scale-105">
+                    Delete
+                </button>
+                <button type="button" onclick="updateSession(<%= session.id %>)" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg w-1/2 transition duration-200 ease-in-out transform hover:scale-105">
+                    Edit
+                </button>
+            </div>
         </div>
-             
+    <% }); %>
+</div>
+
     </div>
 </body>
 </html>

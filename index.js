@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const bodyParser = require('body-parser');
-const { Sports , Sessions} = require('./models');
+const { Sports, Sessions } = require('./models');
 
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, 'public')));
@@ -13,28 +13,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.get('/', async (req, res) => {
-    // try {
-    //     const allSports = await Sports.select();
-    //     res.render('adminPage', { sports: allSports.map(sport => sport.name) });
-    // } catch (error) {
-    //     console.error(error);
-    //     res.status(500).send('Internal Server Error');
-    // }
-    res.send("Dashboard Page");
-});
-
+// Render the admin page with sports and sessions data
 app.get('/adminPage', async (req, res) => {
     try {
-
+        // Fetch all sports and sessions from the database
         const allSports = await Sports.findAll();
-        const allSession = await Sessions.findAll();
-        console.log(allSession);
-        res.render('adminPage', { 
+        const allSessions = await Sessions.findAll();
+
+        // Render the admin page and pass the sports and sessions data
+        res.render('adminPage', {
             sports: allSports.map(sport => sport.name),
-            sessions: allSession
+            sessions: allSessions
         });
-        res.render('adminPage', { sports: allSports.map(sport => sport.name) });
     } catch (error) {
         console.error(error);
         res.status(500).send('Internal Server Error');
@@ -57,78 +47,97 @@ app.post('/adminPage', async (req, res) => {
             }
         }
 
-        const allSports = await Sports.select();
-        res.render('adminPage', { sports: allSports.map(sport => sport.name) });
+        // Fetch all sports and sessions from the database
+        const allSports = await Sports.findAll(); // Changed to findAll
+        const allSessions = await Sessions.findAll(); // Add this line to fetch sessions
+
+        // Render the admin page and pass the sports and sessions data
+        res.render('adminPage', {
+            sports: allSports.map(sport => sport.name),
+            sessions: allSessions // Pass sessions data to the template
+        });
+
     } catch (error) {
         console.error(error);
         res.status(500).send('Internal Server Error');
     }
 });
 
-app.delete('/adminPage/:name', async (req, res) => {
-    try {
-        const sportName = req.params.name;
-        await Sports.removeSport(sportName);
 
-        const allSports = await Sports.select();
-        res.json(allSports.map(sport => sport.name));
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
-app.post('/create-session', async(req, res) => {
+// Handle the DELETE request for deleting a sport
+app.delete('/adminPage/:sportName', async (req, res) => {
     try {
-        const body = req.body;   
-        const teamAsize= parseInt( body.teamASize);
-        const teamBsize= parseInt(body.teamBSize);
-        const actualSize= parseInt(body.actualSize);
+        const sportName = req.params.sportName;
         
-        console.log("Team A Size",teamAsize);
-        console.log("Team B Size",teamBsize);
-        console.log("Actual Team Size",actualSize);
+        // Find and delete the sport from the database
+        const sportToDelete = await Sports.findOne({ where: { name: sportName } });
+        if (!sportToDelete) {
+            return res.status(404).send('Sport not found');
+        }
 
-        const newSession = await Sessions.create({
-            sport: body.sport,
-            teamA: body.teamA,
-            teamB: body.teamB,
-            teamAsize: teamAsize,  
-            teamBsize: teamBsize,  
-            actualTeamSize: actualSize, 
-            place: body.place,
-            date: body.date,
-            time: body.time
-        });
+        await sportToDelete.destroy(); // Delete the sport from the database
 
-        console.log('Session Details:', body);
-
-        res.status(200).json({
-             message: 'Session created successfully!',
-             session: newSession
-        });
-    } 
-    catch (error) {
-        console.error('Error creating session:', error);
-        res.status(500).json({ error: 'Failed to create session.'});
+        // Return the updated sports list
+        const allSports = await Sports.findAll();
+        res.json(allSports.map(sport => sport.name)); // Send the updated list
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error deleting sport');
     }
 });
 
-app.delete('/delete-session/:id', (req, res) => {
-    const sessionId = req.params.id;
+// Handle the POST request to create a new session
+app.post('/create-session', async (req, res) => {
+    try {
+        const { sport, teamA, teamASize, teamB, teamBSize, actualSize, place, date, time } = req.body;
 
-    // Assuming you have a function to delete a session from the database
-    Sessions.deleteSessionFromDatabase(sessionId)
-        .then(() => {
-            res.status(200).send({ message: 'Session deleted successfully' });
-        })
-        .catch(error => {
-            console.error('Error deleting session:', error);
-            res.status(500).send({ error: 'Failed to delete session' });
+        // Validate that team sizes are integers
+        if (!Number.isInteger(parseInt(teamASize)) || !Number.isInteger(parseInt(teamBSize)) || !Number.isInteger(parseInt(actualSize))) {
+            return res.status(400).json({ error: 'Team sizes must be integers.' });
+        }
+
+        // Create the session
+        const session = await Sessions.create({
+            sport,
+            teamA,
+            teamASize: parseInt(teamASize),
+            teamB,
+            teamBSize: parseInt(teamBSize),
+            actualSize: parseInt(actualSize),
+            place,
+            date,
+            time
         });
+
+        res.status(200).json({ message: 'Session created successfully!', session });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'An error occurred while creating the session.' });
+    }
 });
 
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+
+// Handle the DELETE request for deleting a session
+app.delete('/delete-session/:sessionId', async (req, res) => {
+    try {
+        const sessionId = req.params.sessionId;
+
+        // Find and delete the session from the database
+        const sessionToDelete = await Sessions.findByPk(sessionId);
+        if (!sessionToDelete) {
+            return res.status(404).send('Session not found');
+        }
+
+        await sessionToDelete.destroy(); // Delete the session
+
+        res.json({ message: 'Session deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error deleting session');
+    }
+});
+
+// Start the server
+app.listen(4000, () => {
+    console.log('Server is running on http://localhost:4000');
 });
