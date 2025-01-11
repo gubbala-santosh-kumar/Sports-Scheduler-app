@@ -163,3 +163,89 @@ function getFormData(event) {
         alert('Error updating session: ' + error.message);
     });
 }
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const sessionId = getSessionIdSomehow();
+    if (sessionId) {
+        console.log('Session ID:', sessionId);
+        // Continue with your logic here using the sessionId
+    } else {
+        console.error('Session ID not found.');
+    }
+});
+
+function getSessionIdSomehow() {
+    // Safely get the session ID from the DOM element
+    const sessionElement = document.querySelector('.session');
+    
+    if (sessionElement) {
+        return sessionElement.dataset.sessionId;
+    } else {
+        console.error('Session element not found!');
+        return null;
+    }
+}
+
+function toggleJoinUnjoin(sessionId) {
+    const joinButton = document.getElementById(`joinButton${sessionId}`);
+    const unjoinButton = document.getElementById(`unjoinButton${sessionId}`);
+    
+    if (joinButton.classList.contains('hidden')) {
+        joinButton.classList.remove('hidden');
+        unjoinButton.classList.add('hidden');
+        decreaseTeamSize(sessionId);
+    } else {
+        joinButton.classList.add('hidden');
+        unjoinButton.classList.remove('hidden');
+        updateTeamSize(sessionId);
+    }
+}
+
+async function updateTeamSize(sessionId) {
+    try {
+        console.log('Session ID:', sessionId);
+
+        const response = await fetch('/updateIncreaseTeamSize', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ sessionId })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'An unknown error occurred.');
+        }
+
+        const data = await response.json();
+        console.log('Update successful:', data);
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+}
+
+async function decreaseTeamSize(sessionId) {
+    try {
+        console.log('Session ID:', sessionId);
+
+        const response = await fetch('/updateDecreaseTeamSize', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ sessionId })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'An unknown error occurred.');
+        }
+
+        const data = await response.json();
+        console.log('Decrease successful:', data);
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+}

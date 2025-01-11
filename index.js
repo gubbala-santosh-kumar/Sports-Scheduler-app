@@ -244,7 +244,7 @@ app.post('/update-session', isAuthenticated, async (req, res) => {
     }
 });
 
-app.get('/playerPage',isAuthenticated, async (req, res) => {
+app.get('/playerPage', async (req, res) => {
     try {
         const allSports = await Sports.findAll();
         const allSessions = await Sessions.findAll();
@@ -359,6 +359,93 @@ app.post('/signup-details', async (req, res) => {
         res.redirect('/email_exists');
     }
 });
+
+
+app.post('/updateIncreaseTeamSize', async (req, res) => {
+    try {
+        const { sessionId } = req.body;
+        console.log('Received sessionId:', sessionId);
+
+        if (!sessionId) {
+            return res.status(400).json({ error: 'sessionId is required.' });
+        }
+
+        const session = await Sessions.findByPk(sessionId);
+        console.log('Current Session:', session);
+
+        if (!session) {
+            return res.status(404).json({ error: 'Session not found.' });
+        }
+
+        // Log the current team sizes
+        console.log('Team A Size:', session.teamAsize, 'Team B Size:', session.teamBsize, 'Max Team Size:', session.actualTeamSize);
+
+        if (session.teamAsize < session.teamBsize) {
+            console.log("Increasing Team A Size");
+            session.teamAsize += 1;
+        } else if (session.teamBsize < session.teamAsize) {
+            console.log("Increasing Team B Size");
+            session.teamBsize += 1;
+        } else {
+            return res.status(200).json({ message: 'Both teams have reached the maximum size.' });
+        }
+
+        await session.save();
+        console.log('Updated Session:', session);
+        res.status(200).json({ message: 'Team size updated successfully!', session });
+
+    } catch (error) {
+        console.error('Error updating team sizes:', error);
+        if (!res.headersSent) {
+            res.status(500).json({ error: 'An error occurred while updating the team sizes.' });
+        }
+    }
+});
+
+app.post('/updateDecreaseTeamSize', async (req, res) => {
+    try {
+        const { sessionId } = req.body;
+        console.log('Received sessionId:', sessionId);
+
+        if (!sessionId) {
+            return res.status(400).json({ error: 'sessionId is required.' });
+        }
+
+        const session = await Sessions.findByPk(sessionId);
+        console.log('Current Session:', session);
+
+        if (!session) {
+            return res.status(404).json({ error: 'Session not found.' });
+        }
+
+        // Log the current team sizes
+        console.log('Team A Size:', session.teamAsize, 'Team B Size:', session.teamBsize, 'Max Team Size:', session.actualTeamSize);
+
+        if (session.teamAsize < session.teamBsize) {
+            console.log("Increasing Team A Size");
+            session.teamAsize += 1;
+        } else if (session.teamBsize < session.teamAsize) {
+            console.log("Increasing Team B Size");
+            session.teamBsize += 1;
+        } else {
+            return res.status(200).json({ message: 'Both teams have reached the maximum size.' });
+        }
+
+        await session.save();
+        console.log('Updated Session:', session);
+        res.status(200).json({ message: 'Team size updated successfully!', session });
+
+    } catch (error) {
+        console.error('Error updating team sizes:', error);
+        if (!res.headersSent) {
+            res.status(500).json({ error: 'An error occurred while updating the team sizes.' });
+        }
+    }
+});
+
+
+
+
 
 app.get('/reports', async (req, res) => {
     try {
