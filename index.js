@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const bodyParser = require('body-parser');
-const { Sports, Sessions } = require('./models');
+const { Sports, Sessions, Users } = require('./models');
 
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, 'public')));
@@ -11,6 +11,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+app.get('/Dashboard',(req,res)=>{
+    res.render('Dashboard');
+})
 
 app.get('/adminPage', async (req, res) => {
     try {
@@ -221,6 +225,70 @@ app.get('/availableSessions', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+app.get('/login',(req,res)=>{
+    res.render('login');
+})
+
+// Route to handle login details
+app.post('/login-details', async (req, res) => {
+    const { email, password } = req.body;  // Destructuring email and password from request body
+    try {
+        const user = await Users.getUser(email, password);  // Using getUser method to fetch user
+
+        if (user) {
+            console.log(user); 
+            const { role } = user;  
+            console.log(`User Role: ${role}`); 
+
+            if (role === 'admin') {
+                res.redirect('/adminPage');  
+            } 
+            else if(role == 'player'){
+                res.redirect('/playerPage'); 
+            }
+        } else {
+            res.status(401).send('Unauthorized: Invalid email or password');  // Handling invalid login
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');  // Handling internal server errors
+    }
+});
+
+// Static method for finding user by email and password
+Users.getUser = function (email, password) {
+    return this.findOne({
+        where: {
+            email: email,
+            password: password
+        }
+    });
+};
+
+
+
+
+app.get('/signup',(req,res)=>{
+    res.render('signup');
+})
+
+app.post('/signup-details', async (req, res) => {
+    try {
+        console.log(req.body);
+        const { firstName, lastName, email, password, role } = req.body;
+
+        const user = await Users.addUser(firstName, lastName, email, password, role);
+
+        console.log('User created:', user);
+        res.redirect('/login');
+
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'An error occurred while creating the user.' });
+    }
+});
+
 
 app.listen(4000, () => {
     console.log('Server is running on http://localhost:4000');
