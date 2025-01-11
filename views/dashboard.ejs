@@ -3,9 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Sports Scheduler App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Image Slider Animation */
+body {
+    background-image: url('https://static.vecteezy.com/system/resources/previews/036/115/062/non_2x/ai-generated-sports-equipment-on-a-black-background-sports-equipment-sports-equipment-ai-generated-free-photo.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* Keeps the background fixed while scrolling */
+    background-position: center; /* Center the background image */
+}
+        
+        .slider {
+            border: 1px ridge white;
+            position: relative;
+            width: 200%;
+            height: 320px; /* Increased height for better visibility */
+            overflow: hidden;
+            border-radius: 15px; /* Rounded corners */
+            background: rgba(0, 0, 0, 0.3); /* Semi-transparent background */
+            backdrop-filter: blur(10px); /* Apply blur effect */
+        }
+
+        .slider-images {
+            display: flex;
+            gap: 10px;
+            animation: slide 12s infinite linear;
+        }
+        .slider-images img {
+            width: 100%;
+            height: 60%;
+            object-fit: cover;
+            border-radius: 15px 15px 0px 0px;
+            transition: transform 0.5s ease; /* Smooth transition for scaling */
+        }
+        .slider-images img:hover {
+            transform: scale(1.05); /* Slight zoom on hover */
+        }
+        @keyframes slide {
+            0% { transform: translateX(0); }
+            33% { transform: translateX(-100%); }
+            66% { transform: translateX(-200%); }
+            88% { transform: translateX(-400%); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 50px 20px;
+            background-color: #f7fafc;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-top: 40px;
+            background: rgba(0, 0, 0, 0.3); /* Semi-transparent background */
+            backdrop-filter: blur(10px); 
+            box-shadow: 1px 1px 20px rgba(255, 255, 255, 0.67);
+        }
+        .features h2 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: white;
+        }
+        .features ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap; /* Allow for responsive layout */
+        }
+        .features li {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+            width: 300px; /* Fixed width */
+            height: 300px;
+            color: white;
+            text-align: center;
+            background-color: rgba(3, 145, 245, 0.512);
+        }
+        .features li:hover {
+            background: rgba(0, 0, 0, 0.3); /* Semi-transparent background */
+            backdrop-filter: blur(50px); 
+            cursor: pointer;
+            font-weight: 800;
+            transform: scale(1.05);
+            color: white;
+            border: 1px solid rgba(3, 145, 245, 0.512);
+            box-shadow: 1px 1px 20px rgba(3, 145, 245, 0.512);
+        }
+
+        /* Signup Link Section */
+        .signup-link {
+            text-align: center;
+            margin-top: 40px;
+        }
+        .signup-link a {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #3182ce;
+            padding: 12px 24px;
+            border-radius: 8px;
+            background-color: #edf2f7;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .signup-link a:hover {
+            background-color: #3182ce;
+            color: white;
+        }
+    </style>
 </head>
-<body>
-    <h1>Dashboard Page</h1>
+<body class="bg-gray-50">
+
+    <!-- Include header -->
+    <%- include('header', { title: 'Sports Scheduler App', dashboard: '/signin-form', sign: 'Sign Up / Sign In' }) %>
+
+    <!-- Image Slider -->
+    <div class="slider mt-10 mx-auto max-w-6xl">
+        <div class="slider-images">
+            <img src="https://t4.ftcdn.net/jpg/09/12/38/01/360_F_912380134_TRKmPUHxlsRckEABBsvkvjnAhRuDHwhR.jpg" alt="Image 1">
+            <img src="https://img.pikbest.com/wp/202344/kicking-soccer-ball-football-at-the-corner-kick-line-and-field-background-texture_9905715.jpg!bw700" alt="Image 2">
+            <img src="https://media.istockphoto.com/id/2027638305/photo/%E0%B8%BAbadminton-sports.jpg?s=612x612&w=0&k=20&c=DGTtHC9JRZW6SfafxxqBPeVWyYF6tCQ_qeRzGVRk6gg=" alt="Image 3">
+            <img src="https://img.freepik.com/free-photo/conceptual-strategy-chess-with-chess-figures-side-view-horizontal-image_176474-6776.jpg" alt="Image 4">
+            <img src="https://images.deccanherald.com/deccanherald%2Fimport%2Fsites%2Fdh%2Ffiles%2Farticleimages%2F2020%2F10%2F20%2Ffile76x3rkw53wh1cb33ncrn-857184-1603180182.jpg?auto=format%2Ccompress&fmt=webp&fit=max&format=webp&q=70&w=400&dpr=2" alt="Image 5">
+            <img src="https://media.istockphoto.com/id/1837716669/photo/table-tennis-player-on-the-black-background-ping-pong-banner-download-a-photo-of-a-table.jpg?s=612x612&w=0&k=20&c=FR0FMaP_WFhXYX9ClEH6zVj1WCDTW6h_6g69yJRWHEs=" alt="Image 6">
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features mt-10 mx-auto max-w-6xl">
+        <h2 class="text-3xl font-bold text-gray-800">Features of Sports Scheduler App</h2>
+        <ul class="flex gap-6 justify-center md:flex-wrap">
+            <li class="hover:bg-gray-200 transition duration-300 ease-in-out">Add Sports</li>
+            <li class="hover:bg-gray-200 transition duration-300 ease-in-out">Manage Sessions</li>
+            <li class="hover:bg-gray-200 transition duration-300 ease-in-out">Review the Report</li>
+        </ul>
+    </div>
+
+    <!-- Signup Link Section -->
+    <div class="signup-link mt-10 p-8">
+        <a href="/signin-form" class="text-lg font-semibold text-white bg-blue-500 hover:bg-blue-600 rounded-lg transition-all">Go to Sign Up / Sign In</a>
+    </div>
+
 </body>
 </html>

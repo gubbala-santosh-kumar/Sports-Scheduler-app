@@ -83,7 +83,7 @@ passport.deserializeUser(async (id, done) => {
 });
 
 
-app.get('/Dashboard', (req, res) => {
+app.get('/', (req, res) => {
     res.render('Dashboard');
 });
 
@@ -166,6 +166,8 @@ app.post('/create-session', isAuthenticated, async (req, res) => {
     try {
         const { sport, teamA, teamASize, teamB, teamBSize, actualSize, place, date, time } = req.body;
 
+        console.log(req.body);
+
         if (!Number.isInteger(parseInt(teamASize)) || !Number.isInteger(parseInt(teamBSize)) || !Number.isInteger(parseInt(actualSize))) {
             return res.status(400).json({ error: 'Team sizes must be integers.' });
         }
@@ -173,10 +175,10 @@ app.post('/create-session', isAuthenticated, async (req, res) => {
         const session = await Sessions.create({
             sport,
             teamA,
-            teamASize: parseInt(teamASize),
+            teamAsize: parseInt(teamASize),
             teamB,
-            teamBSize: parseInt(teamBSize),
-            actualSize: parseInt(actualSize),
+            teamBsize: parseInt(teamBSize),
+            actualsize: parseInt(actualSize),
             place,
             date,
             time
@@ -244,7 +246,7 @@ app.post('/update-session', isAuthenticated, async (req, res) => {
     }
 });
 
-app.get('/playerPage', async (req, res) => {
+app.get('/playerPage',isAuthenticated, async (req, res) => {
     try {
         const allSports = await Sports.findAll();
         const allSessions = await Sessions.findAll();
@@ -358,6 +360,25 @@ app.post('/signup-details', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while creating the user.' });
         res.redirect('/email_exists');
     }
+});
+
+app.get('/signout',connectEnsureLogin.ensureLoggedIn() ,(req,res,next)=>{
+    req.logout((err)=>{
+        if(err) {
+            return next(err);
+        }
+        res.redirect('/login');
+    })
+})
+
+app.get('/signout', (req, res) => {
+    req.logout(); // If using passport.js or session-based login
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).send('Could not log out');
+        }
+        res.redirect('/login');
+    });
 });
 
 app.post('/updateIncreaseTeamSize',isAuthenticated, async (req, res) => {

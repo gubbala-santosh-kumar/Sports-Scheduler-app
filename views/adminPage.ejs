@@ -9,8 +9,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
+    <%- include('header.ejs',{title:'Admin' , dashboard: '/adminPage',sign:'Sign Out' }) %>
     <div class="p-6 rounded-lg shadow-md w-full">
         <form action="/adminPage" method="post" class="bg-white p-6 rounded-lg" onsubmit="return validateSport()">
+            <center><h2 class="text-lg font-bold mb-4">Add Sport</h2></center>
             <div class="flex flex-col items-center">
                 <input 
                     type="text" 

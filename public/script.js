@@ -69,10 +69,16 @@ async function submitSessionForm(event) {
     const formData = new FormData(form);
 
     const formObject = {};
-    formData.forEach((value, key) => {
-        formObject[key] = value;
-    });
 
+    formData.forEach((value, key) => {
+        // Check if the value is a number and convert it to an integer
+        if (!isNaN(value) && value.trim() !== '') {
+            formObject[key] = parseInt(value, 10);
+        } else {
+            formObject[key] = value;
+        }
+    });
+    
     console.log(formObject);
 
     try {
