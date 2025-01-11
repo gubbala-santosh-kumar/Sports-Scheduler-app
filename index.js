@@ -4,6 +4,11 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const { Sports, Sessions, Users } = require('./models');
 
+const session = require('express-session');
+const LocalStrategy = require('passport-local');
+const connectEnsureLogin = require('connect-ensure-login');
+const bcrypt = require('bcrypt');
+
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -288,6 +293,34 @@ app.post('/signup-details', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while creating the user.' });
     }
 });
+
+
+
+app.get('/reports', async (req, res) => {
+    try {
+        const allSports = await Sports.findAll(); // Get all sports
+        const allSessions = await Sessions.findAll(); // Get all sessions
+
+        // Prepare an array for sports names
+        const sports = allSports.map(sport => sport.name);
+
+        // Count the number of sessions per sport
+        const sessionsPerSport = sports.map(sport => {
+            const sessionCount = allSessions.filter(session => session.sport === sport).length;
+            return { sport, sessionCount };
+        });
+
+        res.render('reports', {
+            sports, 
+            sessions: allSessions, 
+            sessionsPerSport
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 
 
 app.listen(4000, () => {
