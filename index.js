@@ -360,8 +360,7 @@ app.post('/signup-details', async (req, res) => {
     }
 });
 
-
-app.post('/updateIncreaseTeamSize', async (req, res) => {
+app.post('/updateIncreaseTeamSize',isAuthenticated, async (req, res) => {
     try {
         const { sessionId } = req.body;
         console.log('Received sessionId:', sessionId);
@@ -386,7 +385,10 @@ app.post('/updateIncreaseTeamSize', async (req, res) => {
         } else if (session.teamBsize < session.teamAsize) {
             console.log("Increasing Team B Size");
             session.teamBsize += 1;
-        } else {
+        } else if(session.teamAsize === session.teamBsize ){
+            session.teamAsize += 1;
+        }
+        else {
             return res.status(200).json({ message: 'Both teams have reached the maximum size.' });
         }
 
@@ -402,7 +404,7 @@ app.post('/updateIncreaseTeamSize', async (req, res) => {
     }
 });
 
-app.post('/updateDecreaseTeamSize', async (req, res) => {
+app.post('/updateDecreaseTeamSize',isAuthenticated, async (req, res) => {
     try {
         const { sessionId } = req.body;
         console.log('Received sessionId:', sessionId);
@@ -423,11 +425,12 @@ app.post('/updateDecreaseTeamSize', async (req, res) => {
 
         if (session.teamAsize < session.teamBsize) {
             console.log("Increasing Team A Size");
-            session.teamAsize += 1;
+            session.teamAsize -= 1;
         } else if (session.teamBsize < session.teamAsize) {
             console.log("Increasing Team B Size");
-            session.teamBsize += 1;
-        } else {
+            session.teamBsize -= 1;
+        }
+        else {
             return res.status(200).json({ message: 'Both teams have reached the maximum size.' });
         }
 
@@ -442,9 +445,6 @@ app.post('/updateDecreaseTeamSize', async (req, res) => {
         }
     }
 });
-
-
-
 
 
 app.get('/reports', async (req, res) => {

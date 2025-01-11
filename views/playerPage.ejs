@@ -41,9 +41,6 @@
                     <div class="space-y-3">
                         <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Team A:</strong> <%= session.teamA %></p>
                         <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Team B:</strong> <%= session.teamB %></p>
-                        <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Team A Size:</strong> <%= session.teamAsize %></p>
-                        <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Team B Size:</strong> <%= session.teamBsize %></p>
-                        <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Actual Team Size:</strong> <%= session.actualTeamSize %></p>
                         <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Place:</strong> <%= session.place %></p>
                         <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Date:</strong> <%= session.date.toLocaleDateString() %></p>
                         <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Time:</strong> <%= session.time %></p><br>
@@ -82,10 +79,19 @@
         
         <h2 class="text-2xl font-semibold text-center mt-10 mb-6 text-gray-800">Completed Sessions</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full px-4">
-            <% if(sessions.filter(session => (parseInt(session.actualTeamSize) * 2 - (parseInt(session.teamAsize) + parseInt(session.teamBsize))) === 0)){%>
+            <% 
+                // Filter the sessions that are completed based on your condition
+                const completedSessions = sessions.filter(session => (parseInt(session.actualTeamSize) * 2 - (parseInt(session.teamAsize) + parseInt(session.teamBsize))) === 0);
+                
+                // If no completed sessions, show the message
+                if (completedSessions.length === 0) { 
+            %>
                 <p class="text-red-500">No Sessions completed till now</p>
-            <%}%>
-            <% sessions.filter(session => (parseInt(session.actualTeamSize) * 2 - (parseInt(session.teamAsize) + parseInt(session.teamBsize))) === 0).forEach(session => { %>
+            <% 
+                } else {
+                    // Loop through completed sessions and display each one
+                    completedSessions.forEach(session => { 
+            %>
                 <div class="session-card bg-white p-6 rounded-lg shadow-xl">
                     <div class="text-center mb-4">
                         <p class="text-xl font-semibold text-gray-700"><%= session.sport %></p>
@@ -94,9 +100,6 @@
                     <div class="space-y-3">
                         <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Team A:</strong> <%= session.teamA %></p>
                         <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Team B:</strong> <%= session.teamB %></p>
-                        <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Team A Size:</strong> <%= session.teamAsize %></p>
-                        <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Team B Size:</strong> <%= session.teamBsize %></p>
-                        <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Actual Team Size:</strong> <%= session.actualTeamSize %></p>
                         <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Place:</strong> <%= session.place %></p>
                         <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Date:</strong> <%= session.date.toLocaleDateString() %></p>
                         <p class="text-lg text-gray-800"><strong class="font-semibold text-indigo-600">Time:</strong> <%= session.time %></p><br>
@@ -104,18 +107,22 @@
                             <strong class="font-semibold text-indigo-600">No slots are Available...</strong>
                         </center>
                     </div>
-        
+            
                     <div class="mt-6 flex justify-center">
                         <button 
-                        type="button" 
-                        class="bg-blue-300 text-white py-2 px-6 rounded-lg w-1/2 transition duration-200 ease-in-out transform cursor-not-allowed" 
-                        disabled> Join Now
-                    </button>
+                            type="button" 
+                            class="bg-blue-300 text-white py-2 px-6 rounded-lg w-1/2 transition duration-200 ease-in-out transform cursor-not-allowed" 
+                            disabled> 
+                            Join Now
+                        </button>
                     </div>
-                    
                 </div>
-            <% }); %>
+            <% 
+                }); 
+            }
+            %>
         </div>
+        
         
 
         <!-- ------------------- -->
