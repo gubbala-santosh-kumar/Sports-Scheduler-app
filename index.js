@@ -2,26 +2,92 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const bodyParser = require('body-parser');
-const { Sports, Sessions, Users } = require('./models');
-
+const passport = require('passport');
 const session = require('express-session');
-const LocalStrategy = require('passport-local');
+const LocalStrategy = require('passport-local').Strategy;
 const connectEnsureLogin = require('connect-ensure-login');
 const bcrypt = require('bcrypt');
+const { Sports, Sessions, Users } = require('./models');
 
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.get('/Dashboard',(req,res)=>{
-    res.render('Dashboard');
-})
+const saltRounds = 10;
+// Session setup
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false, maxAge: 1000 * 60 * 60 }  // Set session expiration
+}));
 
-app.get('/adminPage', async (req, res) => {
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Authentication check middleware
+function isAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();  // If the user is authenticated, proceed to the next middleware/route
+    }
+    res.redirect('/login');  // If not authenticated, redirect to login page
+}
+
+// Passport local strategy for authentication
+passport.use(new LocalStrategy(
+    async (email, password, done) => {
+        try {
+            const user = await Users.findOne({ where: { email: email } });
+
+            if (!user) {
+                return done(null, false, { message: 'Invalid credentials' });
+            }
+
+            // Use bcrypt to compare the provided password with the hashed password
+            const isValid = await bcrypt.compare(password, user.password);
+
+            if (!isValid) {
+                return done(null, false, { message: 'Invalid credentials' });
+            }
+
+            return done(null, user);
+        } catch (error) {
+            return done(error);
+        }
+    }
+));
+
+
+// Serialize user to store user ID in session
+passport.serializeUser((user, done) => {
+    done(null, user.id);  // Use the user ID as the session identifier
+});
+
+// Deserialize user from session
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await Users.findByPk(id);
+        if (user) {
+            done(null, user);  // User is properly deserialized
+        } else {
+            done(new Error('User not found'), null);
+        }
+    } catch (error) {
+        done(error, null);
+    }
+});
+
+
+app.get('/Dashboard', (req, res) => {
+    res.render('Dashboard');
+});
+
+app.get('/adminPage', isAuthenticated, async (req, res) => {
     try {
         const allSports = await Sports.findAll();
         const allSessions = await Sessions.findAll();
@@ -36,8 +102,7 @@ app.get('/adminPage', async (req, res) => {
     }
 });
 
-app.post('/adminPage', async (req, res) => {
-    console.log(req.body);
+app.post('/adminPage', isAuthenticated, async (req, res) => {
     try {
         const sportName = req.body.sport.trim();
         if (sportName) {
@@ -57,14 +122,13 @@ app.post('/adminPage', async (req, res) => {
             sports: allSports.map(sport => sport.name),
             sessions: allSessions
         });
-
     } catch (error) {
         console.error(error);
         res.status(500).send('Internal Server Error');
     }
 });
 
-app.delete('/adminPage/:sportName', async (req, res) => {
+app.delete('/adminPage/:sportName', isAuthenticated, async (req, res) => {
     try {
         const sportName = req.params.sportName;
 
@@ -83,7 +147,7 @@ app.delete('/adminPage/:sportName', async (req, res) => {
     }
 });
 
-app.get('updateSessionForm', async (req, res) => {
+app.get('/updateSessionForm', isAuthenticated, async (req, res) => {
     try {
         const allSports = await Sports.findAll();
         const session = await Sessions.findAll();
@@ -98,7 +162,7 @@ app.get('updateSessionForm', async (req, res) => {
     }
 });
 
-app.post('/create-session', async (req, res) => {
+app.post('/create-session', isAuthenticated, async (req, res) => {
     try {
         const { sport, teamA, teamASize, teamB, teamBSize, actualSize, place, date, time } = req.body;
 
@@ -125,7 +189,7 @@ app.post('/create-session', async (req, res) => {
     }
 });
 
-app.delete('/delete-session/:sessionId', async (req, res) => {
+app.delete('/delete-session/:sessionId',connectEnsureLogin.ensureLoggedIn(), isAuthenticated, async (req, res) => {
     try {
         const sessionId = req.params.sessionId;
 
@@ -143,20 +207,12 @@ app.delete('/delete-session/:sessionId', async (req, res) => {
     }
 });
 
-app.post('/update-session', async (req, res) => {
+app.post('/update-session', isAuthenticated, async (req, res) => {
     const { sessionId, sport, teamA, teamASize, teamB, teamBSize, actualSize, place, date, time } = req.body;
-
-    console.log(req.body);
 
     const parsedTeamASize = parseInt(teamASize);
     const parsedTeamBSize = parseInt(teamBSize);
     const parsedActualSize = parseInt(actualSize);
-
-    console.log('Parsed values:', {
-        parsedTeamASize,
-        parsedTeamBSize,
-        parsedActualSize
-    });
 
     if (isNaN(parsedTeamASize) || isNaN(parsedTeamBSize) || isNaN(parsedActualSize)) {
         return res.status(400).json({ error: 'Team sizes must be valid integers.' });
@@ -188,7 +244,7 @@ app.post('/update-session', async (req, res) => {
     }
 });
 
-app.get('/playerPage', async (req, res) => {
+app.get('/playerPage',isAuthenticated, async (req, res) => {
     try {
         const allSports = await Sports.findAll();
         const allSessions = await Sessions.findAll();
@@ -203,7 +259,7 @@ app.get('/playerPage', async (req, res) => {
     }
 });
 
-app.get('/createSession', async (req, res) => {
+app.get('/createSession', isAuthenticated, async (req, res) => {
     try {
         const allSports = await Sports.findAll();
 
@@ -216,7 +272,7 @@ app.get('/createSession', async (req, res) => {
     }
 });
 
-app.get('/availableSessions', async (req, res) => {
+app.get('/availableSessions', isAuthenticated, async (req, res) => {
     try {
         const allSports = await Sports.findAll();
         const allSessions = await Sessions.findAll();
@@ -231,37 +287,37 @@ app.get('/availableSessions', async (req, res) => {
     }
 });
 
-app.get('/login',(req,res)=>{
+app.get('/login', (req, res) => {
     res.render('login');
-})
+});
 
-// Route to handle login details
-app.post('/login-details', async (req, res) => {
-    const { email, password } = req.body;  // Destructuring email and password from request body
+app.post('/login-details', async (req, res, next) => {
+    const { email, password } = req.body;
     try {
-        const user = await Users.getUser(email, password);  // Using getUser method to fetch user
+        const user = await Users.getUser(email, password);
 
         if (user) {
-            console.log(user); 
-            const { role } = user;  
-            console.log(`User Role: ${role}`); 
-
-            if (role === 'admin') {
-                res.redirect('/adminPage');  
-            } 
-            else if(role == 'player'){
-                res.redirect('/playerPage'); 
-            }
+            req.login(user, (err) => {  // This will initialize the session
+                if (err) {
+                    return next(err);
+                }
+                const { role } = user;
+                if (role === 'admin') {
+                    res.redirect('/adminPage');
+                } else if (role === 'player') {
+                    res.redirect('/playerPage');
+                }
+            });
         } else {
-            res.status(401).send('Unauthorized: Invalid email or password');  // Handling invalid login
+            res.status(401).send('Unauthorized: Invalid email or password');
         }
     } catch (error) {
         console.error(error);
-        res.status(500).send('Internal Server Error');  // Handling internal server errors
+        res.status(500).send('Internal Server Error');
     }
 });
 
-// Static method for finding user by email and password
+
 Users.getUser = function (email, password) {
     return this.findOne({
         where: {
@@ -271,48 +327,45 @@ Users.getUser = function (email, password) {
     });
 };
 
-
-
-
-app.get('/signup',(req,res)=>{
+app.get('/signup', (req, res) => {
     res.render('signup');
+});
+
+app.get('/email_exists',(req,res)=>{
+    res.render('email_exists');
 })
 
 app.post('/signup-details', async (req, res) => {
     try {
-        console.log(req.body);
         const { firstName, lastName, email, password, role } = req.body;
 
-        const user = await Users.addUser(firstName, lastName, email, password, role);
+        const hashedPwd = await bcrypt.hash(req.body.password,saltRounds)
+        console.log(hashedPwd);
+        const user = await Users.addUser(firstName, lastName, email, hashedPwd, role);
 
-        console.log('User created:', user);
         res.redirect('/login');
-
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'An error occurred while creating the user.' });
+        res.redirect('/email_exists');
     }
 });
 
-
-
 app.get('/reports', async (req, res) => {
     try {
-        const allSports = await Sports.findAll(); // Get all sports
-        const allSessions = await Sessions.findAll(); // Get all sessions
+        const allSports = await Sports.findAll();
+        const allSessions = await Sessions.findAll();
 
-        // Prepare an array for sports names
         const sports = allSports.map(sport => sport.name);
 
-        // Count the number of sessions per sport
         const sessionsPerSport = sports.map(sport => {
             const sessionCount = allSessions.filter(session => session.sport === sport).length;
             return { sport, sessionCount };
         });
 
         res.render('reports', {
-            sports, 
-            sessions: allSessions, 
+            sports,
+            sessions: allSessions,
             sessionsPerSport
         });
     } catch (error) {
@@ -321,9 +374,6 @@ app.get('/reports', async (req, res) => {
     }
 });
 
-
-
 app.listen(4000, () => {
     console.log('Server is running on http://localhost:4000');
 });
-
