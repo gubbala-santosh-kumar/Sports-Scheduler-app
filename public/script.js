@@ -29,9 +29,18 @@ function openSessionForm() {
 
 function updateSession(sessionId, sessions) {
     sessions = JSON.parse(sessions);
-    console.log("Update the form where the id is :", sessionId);
-    document.getElementById("updateSessionFormContainer").style.display = "block";
+    console.log("Update the form where the id is:", sessionId);
 
+    // Show the form container
+    const formContainer = document.getElementById("updateSessionFormContainer");
+    if (formContainer) {
+        formContainer.style.display = "block";
+    } else {
+        console.error('Form container not found!');
+        return;
+    }
+
+    // Find the session with the given ID
     const session = sessions.find(s => s.id === sessionId);
     console.log('Found session:', session);
 
@@ -40,17 +49,19 @@ function updateSession(sessionId, sessions) {
         return;
     }
 
-    document.getElementById('sessionId').value = session.id;
-    document.getElementById('sport').value = session.sport;
-    document.getElementById('teamA').value = session.teamA;
-    document.getElementById('teamASize').value = parseInt(session.teamAsize);
-    document.getElementById('teamB').value = session.teamB;
-    document.getElementById('teamBSize').value = parseInt(session.teamBsize);
-    document.getElementById('actualSize').value = parseInt(session.actualTeamSize);
-    document.getElementById('place').value = session.place;
-    document.getElementById('date').value = session.date.split('T')[0];
-    document.getElementById('time').value = session.time;
+    // Populate form fields with session data
+    document.getElementById('sessionId').value = session.id || '';
+    document.getElementById('sport').value = session.sport || '';
+    document.getElementById('teamA').value = session.teamA || '';
+    document.getElementById('teamASize').value = parseInt(session.teamAsize) || 0;
+    document.getElementById('teamB').value = session.teamB || '';
+    document.getElementById('teamBSize').value = parseInt(session.teamBsize) || 0;
+    document.getElementById('actualSize').value = parseInt(session.actualTeamSize) || 0;
+    document.getElementById('place').value = session.place || '';
+    document.getElementById('date').value = session.date ? session.date.split('T')[0] : '';
+    document.getElementById('time').value = session.time || '';
 }
+
 
 async function submitSessionForm(event) {
     event.preventDefault();

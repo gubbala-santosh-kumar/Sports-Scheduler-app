@@ -294,35 +294,40 @@ app.get('/login', (req, res) => {
 app.post('/login-details', async (req, res, next) => {
     const { email, password } = req.body;
     try {
-        const user = await Users.getUser(email, password);
+        const user = await Users.getUser(email);
 
         if (user) {
-            req.login(user, (err) => {  // This will initialize the session
-                if (err) {
-                    return next(err);
-                }
-                const { role } = user;
-                if (role === 'admin') {
-                    res.redirect('/adminPage');
-                } else if (role === 'player') {
-                    res.redirect('/playerPage');
-                }
-            });
+            const isValid = await bcrypt.compare(password, user.password);
+            if (isValid) {
+                req.login(user, (err) => {
+                    if (err) {
+                        return next(err);
+                    }
+                    const { role } = user;
+                    if (role === 'admin') {
+                        res.redirect('/adminPage');
+                    } else if (role === 'player') {
+                        res.redirect('/playerPage');
+                    }
+                });
+            } else {
+                res.redirect('/invalidLogin');
+            }
         } else {
-            res.status(401).send('Unauthorized: Invalid email or password');
+            res.redirect('/invalidLogin');
         }
     } catch (error) {
         console.error(error);
         res.status(500).send('Internal Server Error');
+        res.redirect('/invalidLogin');
     }
 });
 
 
-Users.getUser = function (email, password) {
+Users.getUser = function (email) {
     return this.findOne({
         where: {
-            email: email,
-            password: password
+            email: email
         }
     });
 };
@@ -333,6 +338,10 @@ app.get('/signup', (req, res) => {
 
 app.get('/email_exists',(req,res)=>{
     res.render('email_exists');
+})
+
+app.get('/invalidLogin',(req,res)=>{
+    res.render('invalidLogin');
 })
 
 app.post('/signup-details', async (req, res) => {
