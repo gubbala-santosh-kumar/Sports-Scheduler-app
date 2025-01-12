@@ -79,8 +79,121 @@
                 </table>
             </div>
 
+            <!-- Bar Graph for Sports Available -->
+            <div class="mt-6 w-96">
+                <h2 class="text-xl font-semibold mb-4">Sports Available Bar Graph</h2>
+                <canvas id="sportsAvailableBarChart" class="w-48 h-48"></canvas>
+            </div>
+
+            <!-- Bar Graph for Sessions Per Sport -->
+            <div class="mt-6 w-96">
+                <h2 class="text-xl font-semibold mb-4">Sessions Per Sport Bar Graph</h2>
+                <canvas id="sessionsPerSportBarChart" class="w-48 h-48"></canvas>
+            </div>
+
+            <!-- Pie Chart -->
+            <div class="mt-6 w-96">
+                <h2 class="text-xl font-semibold mb-4">Sessions Distribution by Sport</h2>
+                <canvas id="sportsPieChart" class="w-48 h-48"></canvas>
+            </div>
+
         </div>
 
     </div>
+    <script>
+        // Data for the pie chart based on sports and session count
+        const sessionData = <%- JSON.stringify(sessionsPerSport) %>;
+        const sportNames = sessionData.map(sport => sport.sport);
+        const sessionCounts = sessionData.map(sport => sport.sessionCount);
+
+        // Pie Chart
+        const ctxPie = document.getElementById('sportsPieChart').getContext('2d');
+        new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: sportNames, // Labels for the chart (Sport names)
+                datasets: [{
+                    data: sessionCounts, // Data for the chart (Session counts)
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+                    hoverBackgroundColor: ['#FF4384', '#2A8EBD', '#FFB346', '#2B9F9F', '#8B50FF']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw + ' Sessions';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Bar Chart for Sports Available
+        const ctxBarAvailable = document.getElementById('sportsAvailableBarChart').getContext('2d');
+        new Chart(ctxBarAvailable, {
+            type: 'bar',
+            data: {
+                labels: sportNames, // Labels for the chart (Sport names)
+                datasets: [{
+                    label: 'Sports Available',
+                    data: sessionCounts, // Data for the chart (Session counts)
+                    backgroundColor: '#4BC0C0',
+                    borderColor: '#2B9F9F',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Bar Chart for Sessions Per Sport
+        const ctxBarSessions = document.getElementById('sessionsPerSportBarChart').getContext('2d');
+        new Chart(ctxBarSessions, {
+            type: 'bar',
+            data: {
+                labels: sportNames, // Labels for the chart (Sport names)
+                datasets: [{
+                    label: 'Number of Sessions',
+                    data: sessionCounts, // Data for the chart (Session counts)
+                    backgroundColor: '#FF6384',
+                    borderColor: '#FF4384',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+    </script>
+
 </body>
 </html>
