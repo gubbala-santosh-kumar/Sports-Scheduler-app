@@ -68,7 +68,7 @@ The Sports Scheduler App aims to simplify the management and scheduling of sport
 - Access credentials (for Admin and Player roles)
 
 ### Steps to Install
-1. Clone the repository from GitHub.
+1. Clone the repository from <a href="https://github.com/gubbala-santosh-kumar/Sports-Scheduler-app">Github</a>
 2. Navigate to the project directory.
 3. Install dependencies using the command:
    ```bash
