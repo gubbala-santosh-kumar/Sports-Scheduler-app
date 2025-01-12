@@ -87,6 +87,7 @@ app.get('/', (req, res) => {
     res.render('Dashboard');
 });
 
+
 app.get('/adminPage', isAuthenticated, async (req, res) => {
     try {
         const allSports = await Sports.findAll();

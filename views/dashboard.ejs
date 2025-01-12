@@ -5,20 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sports Scheduler App</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
     <style>
         /* Image Slider Animation */
-body {
-    background-image: url('https://static.vecteezy.com/system/resources/previews/036/115/062/non_2x/ai-generated-sports-equipment-on-a-black-background-sports-equipment-sports-equipment-ai-generated-free-photo.jpg');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed; /* Keeps the background fixed while scrolling */
-    background-position: center; /* Center the background image */
-}
+        body {
+            background-image: url('https://static.vecteezy.com/system/resources/previews/036/115/062/non_2x/ai-generated-sports-equipment-on-a-black-background-sports-equipment-sports-equipment-ai-generated-free-photo.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* Keeps the background fixed while scrolling */
+            background-position: center; /* Center the background image */
+        }
         
         .slider {
             border: 1px ridge white;
             position: relative;
-            width: 200%;
+            width: 100%; /* Full width for responsiveness */
             height: 320px; /* Increased height for better visibility */
             overflow: hidden;
             border-radius: 15px; /* Rounded corners */
@@ -31,6 +32,7 @@ body {
             gap: 10px;
             animation: slide 12s infinite linear;
         }
+
         .slider-images img {
             width: 100%;
             height: 60%;
@@ -38,9 +40,11 @@ body {
             border-radius: 15px 15px 0px 0px;
             transition: transform 0.5s ease; /* Smooth transition for scaling */
         }
+
         .slider-images img:hover {
             transform: scale(1.05); /* Slight zoom on hover */
         }
+
         @keyframes slide {
             0% { transform: translateX(0); }
             33% { transform: translateX(-100%); }
@@ -90,6 +94,7 @@ body {
             text-align: center;
             background-color: rgba(3, 145, 245, 0.512);
         }
+
         .features li:hover {
             background: rgba(0, 0, 0, 0.3); /* Semi-transparent background */
             backdrop-filter: blur(50px); 
@@ -119,15 +124,56 @@ body {
             background-color: #3182ce;
             color: white;
         }
+
+        /* Centering Admin and Player Icons */
+        .icon-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            gap: 15px;
+        }
+
+        .icon-container img {
+            max-width: 150px;
+            border-radius: 10px;
+        }
+
+        .icon-container a h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            background-color: #3182ce;
+            padding: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .icon-container a h1:hover {
+            background-color: #1e40af;
+            color: white;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
 
-    <!-- Include header -->
-    <%- include('header', { title: 'Sports Scheduler App', dashboard: '/signin-form', sign: 'Sign Up / Sign In' }) %>
+    <header class="bg-blue-600 p-4 text-white shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold">Welcome to Dashboard</h1>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="/Dashobard" class="text-lg font-semibold hover:text-blue-600 p-2 rounded-lg hover:bg-white">Dashboard</a></li>
+                    <li><a href="/reports" class="text-lg font-semibold hover:text-blue-600 p-2 rounded-lg hover:bg-white">Reports</a></li>
+                    <li><a href="/signup" class="text-lg font-semibold hover:text-blue-600 p-2 rounded-lg hover:bg-white">Sign Up / Sign In</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
     <!-- Image Slider -->
-    <div class="slider mt-10 mx-auto max-w-6xl">
+    <div class="slider mt-10 mx-auto max-w-full sm:max-w-6xl">
         <div class="slider-images">
             <img src="https://t4.ftcdn.net/jpg/09/12/38/01/360_F_912380134_TRKmPUHxlsRckEABBsvkvjnAhRuDHwhR.jpg" alt="Image 1">
             <img src="https://img.pikbest.com/wp/202344/kicking-soccer-ball-football-at-the-corner-kick-line-and-field-background-texture_9905715.jpg!bw700" alt="Image 2">
@@ -138,20 +184,39 @@ body {
         </div>
     </div>
 
+    <div class="features flex flex-col sm:flex-row gap-10 justify-center items-center mt-10 mx-auto max-w-full sm:max-w-6xl">
+        <!-- Admin Section -->
+        <div class="icon-container w-full sm:w-1/2">
+            <img src="admin-icon.png" alt="Admin Icon">
+            <a href="/login">
+                <h1>Login as Admin</h1>
+            </a>
+        </div>
+
+        <!-- Player Section -->
+        <div class="icon-container w-full sm:w-1/2">
+            <img src="player-icon.png" alt="Player Icon">
+            <a href="/login">
+                <h1>Login as Player</h1>
+            </a>
+        </div>
+    </div>
+
     <!-- Features Section -->
-    <div class="features mt-10 mx-auto max-w-6xl">
+    <div class="features mt-10 mx-auto max-w-full sm:max-w-6xl">
         <h2 class="text-3xl font-bold text-gray-800">Features of Sports Scheduler App</h2>
         <ul class="flex gap-6 justify-center md:flex-wrap">
             <li class="hover:bg-gray-200 transition duration-300 ease-in-out">Add Sports</li>
-            <li class="hover:bg-gray-200 transition duration-300 ease-in-out">Manage Sessions</li>
-            <li class="hover:bg-gray-200 transition duration-300 ease-in-out">Review the Report</li>
+            <li class="hover:bg-gray-200 transition duration-300 ease-in-out">Create Teams</li>
+            <li class="hover:bg-gray-200 transition duration-300 ease-in-out">Schedule Matches</li>
+            <li class="hover:bg-gray-200 transition duration-300 ease-in-out">Track Progress</li>
+            <li class="hover:bg-gray-200 transition duration-300 ease-in-out">Manage Players</li>
         </ul>
     </div>
 
-    <!-- Signup Link Section -->
-    <div class="signup-link mt-10 p-8">
-        <a href="/signin-form" class="text-lg font-semibold text-white bg-blue-500 hover:bg-blue-600 rounded-lg transition-all">Go to Sign Up / Sign In</a>
+    <!-- Signup Link -->
+    <div class="signup-link">
+        <a href="/signup" class="text-xl font-semibold py-2 px-6 rounded-lg border border-blue-500 hover:bg-blue-500 hover:text-white">Sign Up</a>
     </div>
-
 </body>
 </html>

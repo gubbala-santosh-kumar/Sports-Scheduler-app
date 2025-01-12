@@ -9,7 +9,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <%- include('header.ejs',{title:'Admin' , dashboard: '/adminPage',sign:'Sign Out' }) %>
+    <%- include('header.ejs',{title:'Admin' , dashboard: '/adminPage'}) %>
+    <br>
+    <center>
+        <div class="admin-page-admin-icon-div h-30 ">
+            <img src="admin-icon.png" alt="" class="admin-icon">
+        </div>
+        <h1 class="text-2xl"><b>Admin</b></h1>
+    </center>
+
     <div class="p-6 rounded-lg shadow-md w-full">
         <form action="/adminPage" method="post" class="bg-white p-6 rounded-lg" onsubmit="return validateSport()">
             <center><h2 class="text-lg font-bold mb-4">Add Sport</h2></center>
